@@ -10,6 +10,7 @@ class Book(models.Model):
     description = models.TextField()
     coverurl = models.TextField()
     rate = models.FloatField()
+    current = models.TextField(max_length=3)
 
     def __str__(self):
         return self.title
