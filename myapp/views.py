@@ -1,4 +1,4 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, views
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.conf import settings
@@ -9,7 +9,8 @@ import stripe
 import json
 from .models import Book, Review, Transactions
 from .forms import TransactionForm
-from .serializers import BookSerializer, ReviewSerializer
+from .serializers import BookSerializer, ReviewSerializer, TransactionSerializer
+from .service import SquarePaymentService
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -70,41 +71,31 @@ class ReviewViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-@csrf_exempt
-def create_transaction(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+class CreateTransactionView(views.APIView):
+    def post(self, request):
+        amount = request.data.get('amount')
+        currency = request.data.get('currency')
+        source_id = request.data.get('source_id')
+        book_id = request.data.get('book_id')
+        idempotency_key = request.data.get('idempotency_key')
+        
+        book = get_object_or_404(Book, id=book_id)
+        
+        square_service = SquarePaymentService()
+        response = square_service.create_payment(amount, currency, source_id, idempotency_key, book.title)
 
-        form = TransactionForm(data)
-        if form.is_valid():
-            try:
-                charge = stripe.Charge.create(
-                    amount=int(form.cleaned_data['amount'] * 100),
-                    currency=form.cleaned_data['currency'],
-                    source=form.cleaned_data['stripe_token'],
-                    description=f"Charge for {form.cleaned_data['book'].title}"
-                )
-
-                transaction = form.save()
-                
-                return JsonResponse({
-                    'id': transaction.id,
-                    'amount': transaction.amount,
-                    'currency': transaction.currency,
-                    'book': transaction.book.title,
-                    'created_at': transaction.created_at
-                }, status=201)
-            except stripe.error.StripeError as e:
-                return JsonResponse({'error': str(e)}, status=400)
+        if response.is_success():
+            transaction_data = {
+                "transaction_id": response.body['payment']['id'],
+                "amount": amount,
+                "currency": currency,
+                "status": response.body['payment']['status'],
+                "book": book.id,
+            }
+            serializer = TransactionSerializer(data=transaction_data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
-            return JsonResponse({'errors': form.errors}, status=400)
-
-    return JsonResponse({'error': 'Invalid request method'}, status=405)
-
-
-def list_transactions(request):
-    transactions = Transactions.objects.all().values('id', 'amount', 'currency', 'book__title', 'created_at')
-    return JsonResponse(list(transactions), safe=False)
+            return Response({"error": response.errors}, status=status.HTTP_400_BAD_REQUEST)

@@ -30,6 +30,8 @@ STRIPE_PUBLIC_KEY = config('STRIPE_PUBLIC_KEY')
 
 STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY')
 
+SQUARE_ACCESS_TOKEN = config('SQUARE_ACCESS_TOKEN')
+
 # SECURITY WARNING: don't run with debug turned on in production!
 
 # Application definition
@@ -44,6 +46,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'myapp',
+    'sslserver'
 ]
 
 MIDDLEWARE = [

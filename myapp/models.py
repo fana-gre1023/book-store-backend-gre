@@ -31,11 +31,13 @@ class Review(models.Model):
         return f"Review for {self.book.title} - Rating: {self.rating}"
     
 class Transactions(models.Model):
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
-    amount = models.DecimalField(max_digits=6, decimal_places=2)
+    transaction_id = models.CharField(max_length=255, unique=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
     currency = models.CharField(max_length=3)
-    stripe_token = models.CharField(max_length=255)
+    status = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    book = models.ForeignKey('Book', on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'Transaction for {self.book.title} on {self.created_at}'
+        return f'Transaction {self.transaction_id} - {self.amount} {self.currency}'

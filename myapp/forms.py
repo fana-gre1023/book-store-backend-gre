@@ -7,9 +7,9 @@ from decouple import config
 class TransactionForm(forms.ModelForm):
     captcha = forms.CharField(required=True)
 
-    class Meta:
-        model = Transactions
-        fields = ['book', 'amount', 'currency', 'stripe_token'] 
+    # class Meta:
+    #     model = Transactions
+    #     fields = ['book_title', 'amount', 'currency', 'status', 'transaction_id'] 
 
     def clean_captcha(self):
         captcha_response = self.cleaned_data.get('captcha')
