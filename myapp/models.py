@@ -11,6 +11,11 @@ class Book(models.Model):
     coverurl = models.TextField()
     rate = models.FloatField()
     current = models.TextField(max_length=3)
+    signed = models.BooleanField(default=False)
+    dated = models.BooleanField(default=False)
+    promo = models.BooleanField(default=True)
+    stock = models.IntegerField(default=0)
+    statue = models.CharField(max_length=255, default='Available')
 
     def __str__(self):
         return self.title
