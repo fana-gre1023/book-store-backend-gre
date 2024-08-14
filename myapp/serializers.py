@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from.models import Book, Review, Transactions
+from.models import Book, Review, Transactions, Address
 
 class BookSerializer(serializers.ModelSerializer):
     class Meta:
@@ -14,4 +14,9 @@ class ReviewSerializer(serializers.ModelSerializer):
 class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transactions
+        fields = '__all__'
+
+class AddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Address
         fields = '__all__'

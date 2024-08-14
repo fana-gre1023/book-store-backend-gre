@@ -30,14 +30,28 @@ class Review(models.Model):
     def __str__(self):
         return f"Review for {self.book.title} - Rating: {self.rating}"
     
+class Address(models.Model):
+    first_name = models.CharField(max_length=200)
+    last_name = models.CharField(max_length=200)
+    email = models.CharField(max_length=200)
+    address = models.CharField(max_length=200)
+    city = models.CharField(max_length=200)
+    state = models.CharField(max_length=200)
+    zip_code = models.CharField(max_length=200)
+    phone = models.CharField(max_length=200)
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name} - {self.city}, {self.state}"
+
 class Transactions(models.Model):
     transaction_id = models.CharField(max_length=255, unique=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     currency = models.CharField(max_length=3)
     status = models.CharField(max_length=50)
+    address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    book = models.ForeignKey('Book', on_delete=models.CASCADE)
+    books = models.ManyToManyField('Book', related_name='translations')
 
     def __str__(self):
         return f'Transaction {self.transaction_id} - {self.amount} {self.currency}'
