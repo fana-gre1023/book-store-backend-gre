@@ -16,6 +16,13 @@ class Book(models.Model):
     promo = models.BooleanField(default=True)
     stock = models.IntegerField(default=0)
     statue = models.CharField(max_length=255, default='Available')
+    isbn = models.CharField(max_length=255)
+    publisher = models.CharField(max_length=255)
+    publication_date = models.CharField()
+    edition_description = models.CharField(max_length=255)
+    pages = models.IntegerField()
+    sales_rank = models.IntegerField()
+    product_dimensions = models.CharField(max_length=255)
 
     def __str__(self):
         return self.title
@@ -55,3 +62,4 @@ class Transactions(models.Model):
 
     def __str__(self):
         return f'Transaction {self.transaction_id} - {self.amount} {self.currency}'
+
