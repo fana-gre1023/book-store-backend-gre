@@ -17,9 +17,6 @@ if [[ $(git status -s) ]]; then
     git push origin main
 fi
 
-# Backup database (Example for PostgreSQL)
-pg_dump -U username -h localhost -F c dbname > $BACKUP_DIR/db_backup.pgsql
-
 # Backup static and media files
 tar -czvf $BACKUP_DIR/static_backup.tar.gz $STATIC_DIR
 tar -czvf $BACKUP_DIR/media_backup.tar.gz $MEDIA_DIR
