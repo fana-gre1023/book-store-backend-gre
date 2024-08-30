@@ -4,11 +4,8 @@ from rest_framework.response import Response
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
 import stripe
-import json
-from .models import Book, Review, Transactions
-from .forms import TransactionForm
+from .models import Book, Review
 from .serializers import BookSerializer, ReviewSerializer, TransactionSerializer, AddressSerializer
 from .service import SquarePaymentService
 from django.db.models import Avg
